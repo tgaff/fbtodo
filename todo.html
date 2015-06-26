@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" data-framework="jquery">
+  <head>
+    <meta charset="utf-8">
+    <title>jQuery • TodoMVC</title>
+    <link rel="stylesheet" href="node_modules/todomvc-common/base.css">
+    <link rel="stylesheet" href="css/css2.css">
+    <link rel="stylesheet" href="css/app.css">
+    <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
+  </head>
+  <body>
+    <section id="todoapp">
+      <header id="header">
+        <h1>todos</h1>
+        <input id="new-todo" placeholder="What needs to be done?" autofocus>
+      </header>
+      <section id="main">
+        <input id="toggle-all" type="checkbox">
+        <label for="toggle-all">Mark all as complete</label>
+        <ul id="todo-list"></ul>
+      </section>
+      <footer id="footer"></footer>
+    </section>
+
+
+
+    <footer id="info">
+      <p>Double-click to edit a todo</p>
+      <p>tgaff Example with firebase 20150726</p>
+      <p>CSS and some html borrowed from: <a href="http://todomvc.com">TodoMVC</a></p>
+    </footer>
+
+
+    <script>
+      var myDataRef = new Firebase('https://todo1138.firebaseio.com/todos');
+
+
+      //<!-- handle submission of new todos -->
+      $('#new-todo').keypress(function (e) {
+        if (e.keyCode == 13) {
+          var text = $('#new-todo').val();
+          myDataRef.push({description: text, completed: false, deleted: false});
+          $('#new-todo').val('');
+        }
+      });
+
+      // handle update of checked
+      $("#todo-list").on('click', 'input.toggle',
+        function() {
+        var currentKey = $(this).parents('li').prop('id');
+        console.log(currentKey);
+        var currentCompletedVal = $(this).prop('checked');
+        console.log("now setting to: " + currentCompletedVal);
+        var currentDataRef = myDataRef.child(currentKey).ref();
+        currentDataRef.update( { completed: currentCompletedVal } );
+        });
+
+
+      myDataRef.on('child_added', function(snapshot) {
+        var message = snapshot.val();
+        var key = snapshot.key();
+
+        if (message.deleted === false) {
+          $('#todo-list').append('<li class="entry" id="' + key + '"></li>');
+          $('#' + key).load( "line.html", function() {
+            displayTodo(this, message.description, message.completed, message.deleted);
+          });
+        };
+      });
+
+
+      function displayTodo(context, description, completed, deleted) {
+        $(context).find('.toggle').prop('checked', completed);
+        $(context).find('.updating').prop('value', description);
+        $(context).find('label').text(description);
+      };
+    </script>
+
+
+
+    <!-- old, replace: -->
+
+    <script id="footer-template" type="text/x-handlebars-template">
+      <span id="todo-count"><strong>{{activeTodoCount}}</strong> {{activeTodoWord}} left</span>
+      <ul id="filters">
+        <li>
+          <a {{#eq filter 'all'}}class="selected"{{/eq}} href="#/all">All</a>
+        </li>
+        <li>
+          <a {{#eq filter 'active'}}class="selected"{{/eq}}href="#/active">Active</a>
+        </li>
+        <li>
+          <a {{#eq filter 'completed'}}class="selected"{{/eq}}href="#/completed">Completed</a>
+        </li>
+      </ul>
+      {{#if completedTodos}}<button id="clear-completed">Clear completed</button>{{/if}}
+    </script>
+ </body>
+</html>
