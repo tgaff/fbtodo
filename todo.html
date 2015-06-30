@@ -48,12 +48,12 @@
       // handle update of checked
       $("#todo-list").on('click', 'input.toggle',
         function() {
-        var currentKey = $(this).parents('li').prop('id');
-        console.log(currentKey);
-        var currentCompletedVal = $(this).prop('checked');
-        console.log("now setting to: " + currentCompletedVal);
-        var currentDataRef = myDataRef.child(currentKey).ref();
-        currentDataRef.update( { completed: currentCompletedVal } );
+          var currentKey = $(this).parents('li').prop('id');
+          console.log(currentKey);
+          var currentCompletedVal = $(this).prop('checked');
+          console.log("now setting to: " + currentCompletedVal);
+          var currentDataRef = myDataRef.child(currentKey).ref();
+          currentDataRef.update( { completed: currentCompletedVal } );
         });
 
 
